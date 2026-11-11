@@ -1,0 +1,8 @@
+{
+  "place": "none",
+  "title": "Agent picker",
+  "overlay": {
+    "kind": "dialog",
+    "width": 680
+  }
+}
