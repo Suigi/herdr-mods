@@ -161,4 +161,24 @@ currentFocus={terminal:'t3'};
 const restart=new AgentPicker(); restart.init({tracker:true},cx);
 assert.equal(persisted.get(key)[0].address,'t3');
 assert.ok(source.includes('if (this.tracker) return;')); // tracker never creates/focuses an input
-console.log('PASS: picker regressions and MRU sorting, persistence, focus, snapshot and subagent tests');
+currentFocus={terminal:'t1'};
+persisted.set(key,[{address:'t1',created_ms:10},{address:'t3'},{address:'t5',created_ms:50}]);
+const switcher=new AgentPicker(); switcher.init({},cx);
+assert.equal(switcher.allAgents()[0].address,'t3'); // most recent OTHER agent first
+assert.equal(switcher.allAgents().at(-1).address,'t1'); // current agent last
+switcher.query='w ';
+assert.deepEqual(addresses(switcher.rows()),['t5','new-agent','t1']);
+switcher.query='t1';
+assert.deepEqual(addresses(switcher.rows()),['t1']); // still searchable
+const switcherOrder=addresses(switcher.allAgents());
+currentFocus={terminal:'t3'};
+assert.deepEqual(addresses(switcher.allAgents()),switcherOrder); // freeze current for this opening
+live.push(a('late-agent','working','Late'));
+assert.equal(switcher.allAgents().at(-1).address,'t1'); // new arrivals also precede current
+currentFocus={terminal:'t5'};
+const childSwitcher=new AgentPicker(); childSwitcher.init({},cx);
+assert.equal(childSwitcher.allAgents().at(-1).address,'t5'); // subagent current also last
+currentFocus={terminal:'shell',agent:'t3'};
+const shellSwitcher=new AgentPicker(); shellSwitcher.init({},cx);
+assert.equal(shellSwitcher.allAgents()[0].address,'t5'); // ignore stale agent-block selection
+console.log('PASS: picker regressions, MRU, persistence, subagents and current-agent-last tests');

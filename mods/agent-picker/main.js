@@ -96,6 +96,8 @@ export default class AgentPicker extends View {
     this.lastFocus = undefined;
     this.observeFocus();
     if (this.tracker) return;
+    const focus = focused();
+    this.currentAddress = focus?.terminal ?? focus?.shown ?? null;
     const core = terminals();
     this.order = sortByMru(collectAgents(agents(), core), shared(MRU_KEY), core).map(a => a.address);
     this.query = "";
@@ -137,7 +139,10 @@ export default class AgentPicker extends View {
     const known = new Set(this.order);
     for (const a of all) if (!known.has(a.address)) { this.order.push(a.address); known.add(a.address); }
     const ranks = new Map(this.order.map((address, i) => [address, i]));
-    return all.sort((a, b) => ranks.get(a.address) - ranks.get(b.address));
+    // Keep the current agent searchable, but put it behind every other result.
+    // Capture it once at opening so overlay focus changes cannot reshuffle rows.
+    return all.sort((a, b) => Number(a.address === this.currentAddress) - Number(b.address === this.currentAddress)
+      || ranks.get(a.address) - ranks.get(b.address));
   }
 
   rows() {

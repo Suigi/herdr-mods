@@ -15,7 +15,9 @@ Native keyboard picker for agents and live subagents. The installed hotkey is
 
 Actual terminal-focus changes move agents to the front. Highlighting a picker
 row or changing an agent's status does not count as a visit. Filtered results
-retain this order. Each picker opening snapshots the order; new agents append
+retain this order. The agent you were viewing when opening the picker goes last,
+but stays searchable, so the most recently visited *other* agent comes first.
+Each picker opening snapshots the order; new agents append
 and live status changes do not shuffle the current list.
 
 Up to 256 visits persist in Herdr shared state at `agent-picker.mru.v1`.
